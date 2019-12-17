@@ -13,7 +13,7 @@
 #include <mrpt/io/CFileGZOutputStream.h>
 #include <mrpt/opengl/COpenGLScene.h>
 #include <mrpt/opengl/CRenderizable.h>
-#include <mrpt/opengl/CRenderizableDisplayList.h>
+#include <mrpt/opengl/CRenderizable.h>
 #include <mrpt/serialization/CArchive.h>
 #include <mrpt/serialization/metaprogramming_serialization.h>
 
@@ -36,7 +36,7 @@ using namespace std;
 #endif  // _WIN32
 #endif  // MRPT_HAS_OPENGL_GLUT
 
-IMPLEMENTS_SERIALIZABLE(COpenGLScene, CRenderizableDisplayList, mrpt::opengl)
+IMPLEMENTS_SERIALIZABLE(COpenGLScene, CRenderizable, mrpt::opengl)
 
 /*---------------------------------------------------------------
 						Constructor

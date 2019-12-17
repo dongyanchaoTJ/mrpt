@@ -44,10 +44,14 @@ using mrpt::RAD2DEG;
 
 namespace mrpt::math
 {
-static_assert(std::is_trivial_v<TPoint2D_data>);
+static_assert(std::is_trivial_v<TPoint2D_data<float>>);
+static_assert(std::is_trivial_v<TPoint2D_data<double>>);
 static_assert(std::is_trivially_copyable_v<TPoint2D>);
-static_assert(std::is_trivial_v<TPoint3D_data>);
+static_assert(std::is_trivially_copyable_v<TPoint2Df>);
+static_assert(std::is_trivial_v<TPoint3D_data<float>>);
+static_assert(std::is_trivial_v<TPoint3D_data<double>>);
 static_assert(std::is_trivially_copyable_v<TPoint3D>);
+static_assert(std::is_trivially_copyable_v<TPoint3Df>);
 static_assert(std::is_trivially_copyable_v<TPose2D>);
 static_assert(std::is_trivially_copyable_v<TPose3D>);
 static_assert(std::is_trivially_copyable_v<TPlane3D>);
@@ -56,29 +60,49 @@ static_assert(std::is_trivially_copyable_v<TLine3D>);
 static_assert(std::is_trivially_copyable_v<TTwist2D>);
 static_assert(std::is_trivially_copyable_v<TTwist3D>);
 
-TPoint2D::TPoint2D(const TPose2D& p) : TPoint2D_data{p.x, p.y} {}
-TPoint2D::TPoint2D(const TPoint3D& p) : TPoint2D_data{p.x, p.y} {}
-TPoint2D::TPoint2D(const TPose3D& p) : TPoint2D_data{p.x, p.y} {}
-
-bool TPoint2D::operator<(const TPoint2D& p) const
+template <typename T>
+TPoint2D_<T>::TPoint2D_(const TPose2D& p)
+	: TPoint2D_data<T>{static_cast<T>(p.x), static_cast<T>(p.y)}
 {
-	if (x < p.x)
+}
+
+template <typename T>
+TPoint2D_<T>::TPoint2D_(const TPoint3D_<T>& p) : TPoint2D_data<T>{p.x, p.y}
+{
+}
+
+template <typename T>
+TPoint2D_<T>::TPoint2D_(const TPose3D& p)
+	: TPoint2D_data<T>{static_cast<T>(p.x), static_cast<T>(p.y)}
+{
+}
+
+template <typename T>
+bool TPoint2D_<T>::operator<(const TPoint2D_<T>& p) const
+{
+	if (this->x < p.x)
 		return true;
-	else if (x > p.x)
+	else if (this->x > p.x)
 		return false;
 	else
-		return y < p.y;
+		return this->y < p.y;
 }
-void TPoint2D::fromString(const std::string& s)
+
+template <typename T>
+void TPoint2D_<T>::fromString(const std::string& s)
 {
-	CMatrixDouble m;
+	CMatrixDynamic<T> m;
 	if (!m.fromMatlabStringFormat(s))
 		THROW_EXCEPTION("Malformed expression in ::fromString");
 	ASSERTMSG_(
 		m.rows() == 1 && m.cols() == 2, "Wrong size of vector in ::fromString");
-	x = m(0, 0);
-	y = m(0, 1);
+	this->x = m(0, 0);
+	this->y = m(0, 1);
 }
+
+// Explicit instantiations:
+template class TPoint2D_<float>;
+template class TPoint2D_<double>;
 
 TPose2D::TPose2D(const TPoint2D& p) : x(p.x), y(p.y), phi(0.0) {}
 TPose2D::TPose2D(const TPoint3D& p) : x(p.x), y(p.y), phi(0.0) {}
@@ -214,34 +238,56 @@ bool TTwist3D::operator==(const TTwist3D& o) const
 		   wz == o.wz;
 }
 bool TTwist3D::operator!=(const TTwist3D& o) const { return !(*this == o); }
-TPoint3D::TPoint3D(const TPoint2D& p) : TPoint3D_data{p.x, p.y, 0} {}
-TPoint3D::TPoint3D(const TPose2D& p) : TPoint3D_data{p.x, p.y, 0} {}
-TPoint3D::TPoint3D(const TPose3D& p) : TPoint3D_data{p.x, p.y, p.z} {}
 
-bool TPoint3D::operator<(const TPoint3D& p) const
+template <typename T>
+TPoint3D_<T>::TPoint3D_(const TPoint2D_<T>& p) : TPoint3D_data<T>{p.x, p.y, 0}
 {
-	if (x < p.x)
+}
+
+template <typename T>
+TPoint3D_<T>::TPoint3D_(const TPose2D& p)
+	: TPoint3D_data<T>{static_cast<T>(p.x), static_cast<T>(p.y), 0}
+{
+}
+
+template <typename T>
+TPoint3D_<T>::TPoint3D_(const TPose3D& p)
+	: TPoint3D_data<T>{static_cast<T>(p.x), static_cast<T>(p.y),
+					   static_cast<T>(p.z)}
+{
+}
+
+template <typename T>
+bool TPoint3D_<T>::operator<(const TPoint3D_<T>& p) const
+{
+	if (this->x < p.x)
 		return true;
-	else if (x > p.x)
+	else if (this->x > p.x)
 		return false;
-	else if (y < p.y)
+	else if (this->y < p.y)
 		return true;
-	else if (y > p.y)
+	else if (this->y > p.y)
 		return false;
 	else
-		return z < p.z;
+		return this->z < p.z;
 }
-void TPoint3D::fromString(const std::string& s)
+
+template <typename T>
+void TPoint3D_<T>::fromString(const std::string& s)
 {
-	CMatrixDouble m;
+	mrpt::math::CMatrixDynamic<T> m;
 	if (!m.fromMatlabStringFormat(s))
 		THROW_EXCEPTION("Malformed expression in ::fromString");
 	ASSERTMSG_(
 		m.rows() == 1 && m.cols() == 3, "Wrong size of vector in ::fromString");
-	x = m(0, 0);
-	y = m(0, 1);
-	z = m(0, 2);
+	this->x = m(0, 0);
+	this->y = m(0, 1);
+	this->z = m(0, 2);
 }
+
+// Explicit instantiations:
+template class TPoint3D_<float>;
+template class TPoint3D_<double>;
 
 TPose3D::TPose3D(const TPoint2D& p)
 	: x(p.x), y(p.y), z(0.0), yaw(0.0), pitch(0.0), roll(0.0)

@@ -21,7 +21,7 @@ using namespace mrpt::poses;
 using namespace mrpt::math;
 using namespace std;
 
-IMPLEMENTS_SERIALIZABLE(CMesh3D, CRenderizableDisplayList, mrpt::opengl)
+IMPLEMENTS_SERIALIZABLE(CMesh3D, CRenderizable, mrpt::opengl)
 
 CMesh3D::CMesh3D(
 	bool enableTransparency, bool antiAliasing, bool enableShowEdges,
@@ -130,7 +130,7 @@ void CMesh3D::loadMesh(
 		}
 	}
 
-	CRenderizableDisplayList::notifyChange();
+	CRenderizable::notifyChange();
 }
 
 void CMesh3D::loadMesh(
@@ -209,13 +209,16 @@ void CMesh3D::loadMesh(
 			}
 		}
 
-	CRenderizableDisplayList::notifyChange();
+	CRenderizable::notifyChange();
 }
 
-/*---------------------------------------------------------------
-							render
-  ---------------------------------------------------------------*/
-void CMesh3D::render_dl() const
+void CMesh3D::renderUpdateBuffers() const
+{
+	//
+	MRPT_TODO("Implement me!");
+}
+
+void CMesh3D::render() const
 {
 #if MRPT_HAS_OPENGL_GLUT
 

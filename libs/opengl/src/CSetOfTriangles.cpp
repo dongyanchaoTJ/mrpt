@@ -17,16 +17,18 @@
 using namespace mrpt;
 using namespace mrpt::opengl;
 using namespace mrpt::poses;
-
 using namespace mrpt::math;
 using namespace std;
 
-IMPLEMENTS_SERIALIZABLE(CSetOfTriangles, CRenderizableDisplayList, mrpt::opengl)
+IMPLEMENTS_SERIALIZABLE(CSetOfTriangles, CRenderizable, mrpt::opengl)
 
-/*---------------------------------------------------------------
-							render
-  ---------------------------------------------------------------*/
-void CSetOfTriangles::render_dl() const
+void CSetOfTriangles::renderUpdateBuffers() const
+{
+	//
+	MRPT_TODO("Implement me!");
+}
+
+void CSetOfTriangles::render() const
 {
 #if MRPT_HAS_OPENGL_GLUT
 
@@ -139,7 +141,7 @@ void CSetOfTriangles::serializeFrom(
 			MRPT_THROW_UNKNOWN_SERIALIZATION_VERSION(version);
 	};
 	polygonsUpToDate = false;
-	CRenderizableDisplayList::notifyChange();
+	CRenderizable::notifyChange();
 }
 
 bool CSetOfTriangles::traceRay(
@@ -282,7 +284,7 @@ return false;
 
 CRenderizable& CSetOfTriangles::setColor_u8(const mrpt::img::TColor& c)
 {
-	CRenderizableDisplayList::notifyChange();
+	CRenderizable::notifyChange();
 	m_color = c;
 	mrpt::img::TColorf col(c);
 	for (auto& m_triangle : m_triangles)
@@ -298,7 +300,7 @@ CRenderizable& CSetOfTriangles::setColor_u8(const mrpt::img::TColor& c)
 
 CRenderizable& CSetOfTriangles::setColorR_u8(const uint8_t r)
 {
-	CRenderizableDisplayList::notifyChange();
+	CRenderizable::notifyChange();
 	m_color.R = r;
 	const float col = r / 255.f;
 	for (auto& m_triangle : m_triangles)
@@ -308,7 +310,7 @@ CRenderizable& CSetOfTriangles::setColorR_u8(const uint8_t r)
 
 CRenderizable& CSetOfTriangles::setColorG_u8(const uint8_t g)
 {
-	CRenderizableDisplayList::notifyChange();
+	CRenderizable::notifyChange();
 	m_color.G = g;
 	const float col = g / 255.f;
 	for (auto& m_triangle : m_triangles)
@@ -318,7 +320,7 @@ CRenderizable& CSetOfTriangles::setColorG_u8(const uint8_t g)
 
 CRenderizable& CSetOfTriangles::setColorB_u8(const uint8_t b)
 {
-	CRenderizableDisplayList::notifyChange();
+	CRenderizable::notifyChange();
 	m_color.B = b;
 	const float col = b / 255.f;
 	for (auto& m_triangle : m_triangles)
@@ -328,7 +330,7 @@ CRenderizable& CSetOfTriangles::setColorB_u8(const uint8_t b)
 
 CRenderizable& CSetOfTriangles::setColorA_u8(const uint8_t a)
 {
-	CRenderizableDisplayList::notifyChange();
+	CRenderizable::notifyChange();
 	m_color.A = a;
 	const float col = a / 255.f;
 	for (auto& m_triangle : m_triangles)
@@ -359,7 +361,7 @@ void CSetOfTriangles::updatePolygons() const
 			tmpPolygons[i] = tmp;
 		}
 	polygonsUpToDate = true;
-	CRenderizableDisplayList::notifyChange();
+	CRenderizable::notifyChange();
 }
 
 void CSetOfTriangles::getBoundingBox(
@@ -408,5 +410,5 @@ void CSetOfTriangles::insertTriangles(const CSetOfTriangles::Ptr& p)
 	m_triangles.insert(
 		m_triangles.end(), p->m_triangles.begin(), p->m_triangles.end());
 	polygonsUpToDate = false;
-	CRenderizableDisplayList::notifyChange();
+	CRenderizable::notifyChange();
 }

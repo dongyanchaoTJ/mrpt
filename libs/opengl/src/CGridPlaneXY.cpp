@@ -16,10 +16,9 @@
 
 using namespace mrpt;
 using namespace mrpt::opengl;
-
 using namespace std;
 
-IMPLEMENTS_SERIALIZABLE(CGridPlaneXY, CRenderizableDisplayList, mrpt::opengl)
+IMPLEMENTS_SERIALIZABLE(CGridPlaneXY, CRenderizable, mrpt::opengl)
 
 /** Constructor  */
 CGridPlaneXY::CGridPlaneXY(
@@ -36,10 +35,13 @@ CGridPlaneXY::CGridPlaneXY(
 {
 }
 
-/*---------------------------------------------------------------
-					render_dl
-  ---------------------------------------------------------------*/
-void CGridPlaneXY::render_dl() const
+void CGridPlaneXY::renderUpdateBuffers() const
+{
+	//
+	MRPT_TODO("Implement me!");
+}
+
+void CGridPlaneXY::render() const
 {
 #if MRPT_HAS_OPENGL_GLUT
 	ASSERT_(m_frequency >= 0);
@@ -115,7 +117,7 @@ void CGridPlaneXY::serializeFrom(
 		default:
 			MRPT_THROW_UNKNOWN_SERIALIZATION_VERSION(version);
 	};
-	CRenderizableDisplayList::notifyChange();
+	CRenderizable::notifyChange();
 }
 
 void CGridPlaneXY::getBoundingBox(

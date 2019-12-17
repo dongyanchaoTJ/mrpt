@@ -23,12 +23,15 @@ using namespace mrpt::opengl;
 using namespace mrpt::math;
 using namespace std;
 
-IMPLEMENTS_SERIALIZABLE(CEllipsoid, CRenderizableDisplayList, mrpt::opengl)
+IMPLEMENTS_SERIALIZABLE(CEllipsoid, CRenderizable, mrpt::opengl)
 
-/*---------------------------------------------------------------
-							render
-  ---------------------------------------------------------------*/
-void CEllipsoid::render_dl() const
+void CEllipsoid::renderUpdateBuffers() const
+{
+	//
+	MRPT_TODO("Implement me!");
+}
+
+void CEllipsoid::render() const
 {
 #if MRPT_HAS_OPENGL_GLUT
 	MRPT_START
@@ -213,7 +216,7 @@ void CEllipsoid::serializeFrom(
 		default:
 			MRPT_THROW_UNKNOWN_SERIALIZATION_VERSION(version);
 	};
-	CRenderizableDisplayList::notifyChange();
+	CRenderizable::notifyChange();
 }
 
 bool quickSolveEqn(double a, double b_2, double c, double& t)
@@ -280,7 +283,7 @@ void CEllipsoid::setCovMatrix(
 
 	m_prevComputedCov = m_cov;
 
-	CRenderizableDisplayList::notifyChange();
+	CRenderizable::notifyChange();
 
 	// Handle the special case of an ellipsoid of volume = 0
 	const double d = m_cov.det();
@@ -315,7 +318,7 @@ void CEllipsoid::setCovMatrix(
 void CEllipsoid::setCovMatrix(
 	const mrpt::math::CMatrixFloat& m, int resizeToSize)
 {
-	CRenderizableDisplayList::notifyChange();
+	CRenderizable::notifyChange();
 	setCovMatrix(CMatrixDouble(m), resizeToSize);
 }
 

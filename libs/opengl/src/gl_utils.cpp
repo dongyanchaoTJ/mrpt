@@ -45,6 +45,10 @@ void gl_utils::renderSetOfObjects(const CListOpenGLObjects& objectsToRender)
 			if (!*itP) continue;
 			const CRenderizable* it =
 				itP->get();  // Use plain pointers, faster than smart pointers:
+
+			// Regenerate opengl vertex buffers?
+			if (it->m_outdatedBuffers) it->renderUpdateBuffers();
+
 			if (!it->isVisible()) continue;
 
 			// 3D coordinates transformation:
@@ -149,18 +153,16 @@ void gl_utils::TRenderInfo::projectPoint(
 	proj_z_depth = proj[2];
 }
 
-void gl_utils::checkOpenGLErr_impl(const char* filename, int lineno)
+void gl_utils::checkOpenGLErr_impl(
+	int glErrorCode, const char* filename, int lineno)
 {
 #if MRPT_HAS_OPENGL_GLUT
-	int openglErr;
-	if ((openglErr = glGetError()) != GL_NO_ERROR)
-	{
-		const std::string sErr = mrpt::format(
-			"[%s:%i] OpenGL error: %s", filename, lineno,
-			((char*)gluErrorString(openglErr)));
-		std::cerr << "[gl_utils::checkOpenGLError] " << sErr << std::endl;
-		THROW_EXCEPTION(sErr);
-	}
+	if (glErrorCode == GL_NO_ERROR) return;
+	const std::string sErr = mrpt::format(
+		"[%s:%i] OpenGL error: %s", filename, lineno,
+		((char*)gluErrorString(glErrorCode)));
+	std::cerr << "[gl_utils::checkOpenGLError] " << sErr << std::endl;
+	THROW_EXCEPTION(sErr);
 #endif
 }
 

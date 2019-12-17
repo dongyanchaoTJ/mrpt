@@ -17,19 +17,17 @@
 using namespace std;
 using namespace mrpt;
 using namespace mrpt::opengl;
-
 using namespace mrpt::math;
 
-IMPLEMENTS_SERIALIZABLE(
-	CSetOfTexturedTriangles, CRenderizableDisplayList, mrpt::opengl)
+IMPLEMENTS_SERIALIZABLE(CSetOfTexturedTriangles, CRenderizable, mrpt::opengl)
 
-/*---------------------------------------------------------------
-							~CTexturedPlane
-  ---------------------------------------------------------------*/
 CSetOfTexturedTriangles::~CSetOfTexturedTriangles() = default;
-/*---------------------------------------------------------------
-							render
-  ---------------------------------------------------------------*/
+
+void CSetOfTexturedTriangles::renderUpdateBuffers() const
+{
+	MRPT_TODO("Implement me!");
+}
+
 void CSetOfTexturedTriangles::render_texturedobj() const
 {
 #if MRPT_HAS_OPENGL_GLUT
@@ -128,7 +126,7 @@ void CSetOfTexturedTriangles::serializeFrom(
 		default:
 			MRPT_THROW_UNKNOWN_SERIALIZATION_VERSION(version);
 	};
-	CRenderizableDisplayList::notifyChange();
+	CRenderizable::notifyChange();
 }
 
 bool CSetOfTexturedTriangles::traceRay(

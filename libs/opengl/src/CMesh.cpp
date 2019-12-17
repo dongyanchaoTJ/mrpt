@@ -25,7 +25,7 @@ using namespace mrpt::math;
 using namespace std;
 using mrpt::img::CImage;
 
-IMPLEMENTS_SERIALIZABLE(CMesh, CRenderizableDisplayList, mrpt::opengl)
+IMPLEMENTS_SERIALIZABLE(CMesh, CRenderizable, mrpt::opengl)
 
 CMesh::CMesh(
 	bool enableTransparency, float xMin_p, float xMax_p, float yMin_p,
@@ -57,7 +57,7 @@ CMesh::CMesh(
 CMesh::~CMesh() = default;
 void CMesh::updateTriangles() const
 {
-	CRenderizableDisplayList::notifyChange();
+	CRenderizable::notifyChange();
 
 	// Remember:
 	/** List of triangles in the mesh */
@@ -282,10 +282,13 @@ void CMesh::updateTriangles() const
 	polygonsUpToDate = false;
 }
 
-/*---------------------------------------------------------------
-							render
-  ---------------------------------------------------------------*/
-void CMesh::render_dl() const
+void CMesh::renderUpdateBuffers() const
+{
+	//
+	MRPT_TODO("Implement me!");
+}
+
+void CMesh::render() const
 {
 #if MRPT_HAS_OPENGL_GLUT
 	if (m_enableTransparency)
@@ -354,7 +357,7 @@ void CMesh::assignImage(const CImage& img)
 	m_isImage = true;
 	trianglesUpToDate = false;
 
-	CRenderizableDisplayList::notifyChange();
+	CRenderizable::notifyChange();
 
 	MRPT_END
 }
@@ -379,7 +382,7 @@ void CMesh::assignImageAndZ(
 	m_isImage = true;
 	trianglesUpToDate = false;
 
-	CRenderizableDisplayList::notifyChange();
+	CRenderizable::notifyChange();
 
 	MRPT_END
 }
@@ -438,14 +441,14 @@ void CMesh::serializeFrom(mrpt::serialization::CArchive& in, uint8_t version)
 			MRPT_THROW_UNKNOWN_SERIALIZATION_VERSION(version);
 	};
 	trianglesUpToDate = false;
-	CRenderizableDisplayList::notifyChange();
+	CRenderizable::notifyChange();
 }
 
 void CMesh::updateColorsMatrix() const
 {
 	if ((!m_modified_Z) && (!m_modified_Image)) return;
 
-	CRenderizableDisplayList::notifyChange();
+	CRenderizable::notifyChange();
 
 	if (m_isImage)
 	{
@@ -521,14 +524,14 @@ void CMesh::setZ(const mrpt::math::CMatrixDynamic<float>& in_Z)
 	// Delete previously loaded images
 	m_isImage = false;
 
-	CRenderizableDisplayList::notifyChange();
+	CRenderizable::notifyChange();
 }
 
 void CMesh::setMask(const mrpt::math::CMatrixDynamic<float>& in_mask)
 {
 	mask = in_mask;
 	trianglesUpToDate = false;
-	CRenderizableDisplayList::notifyChange();
+	CRenderizable::notifyChange();
 }
 
 void CMesh::setUV(
@@ -537,7 +540,7 @@ void CMesh::setUV(
 {
 	U = in_U;
 	V = in_V;
-	CRenderizableDisplayList::notifyChange();
+	CRenderizable::notifyChange();
 }
 
 bool CMesh::traceRay(const mrpt::poses::CPose3D& o, double& dist) const
@@ -570,7 +573,7 @@ void CMesh::updatePolygons() const
 		actualMesh.begin(), actualMesh.end(), tmpPolys.begin(),
 		createPolygonFromTriangle);
 	polygonsUpToDate = true;
-	CRenderizableDisplayList::notifyChange();
+	CRenderizable::notifyChange();
 }
 
 void CMesh::getBoundingBox(

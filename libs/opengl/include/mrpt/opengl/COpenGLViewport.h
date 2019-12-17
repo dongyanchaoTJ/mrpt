@@ -339,6 +339,9 @@ class COpenGLViewport : public mrpt::serialization::CSerializable,
 		COpenGLScene* parent = nullptr,
 		const std::string& name = std::string(""));
 
+	/** Render the objects in this viewport (called from COpenGLScene) */
+	void render(const int render_width, const int render_height) const;
+
    protected:
 	/** Initializes all textures in the scene (See
 	 * opengl::CTexturedPlane::loadTextureInOpenGL)
@@ -349,8 +352,14 @@ class COpenGLViewport : public mrpt::serialization::CSerializable,
 	 */
 	void dumpListOfObjects(std::vector<std::string>& lst);
 
-	/** Render the objects in this viewport (called from COpenGLScene only) */
-	void render(const int render_width, const int render_height) const;
+	/** Render in image mode */
+	void renderImageMode() const;
+
+	/** Render a normal scene with 3D objects */
+	void renderNormalSceneMode() const;
+
+	/** Render the viewport border, if enabled */
+	void renderViewportBorder() const;
 
 	/** The camera associated to the viewport */
 	opengl::CCamera m_camera;
@@ -382,30 +391,47 @@ class COpenGLViewport : public mrpt::serialization::CSerializable,
 	/** The image to display, after calling \a setImageView() */
 	mrpt::img::CImage::Ptr m_imageview_img;
 
-	struct TLastProjectiveMatrixInfo
+	struct TRenderMatrices
 	{
-		TLastProjectiveMatrixInfo()
-			: eye(0, 0, 0), pointing(0, 0, 0), up(0, 0, 0)
+		TRenderMatrices() = default;
 
-		{
-		}
 		/** The camera is here. */
-		mrpt::math::TPoint3D eye;
+		mrpt::math::TPoint3D eye = {0, 0, 0};
+
 		/** The camera points to here */
-		mrpt::math::TPoint3D pointing;
+		mrpt::math::TPoint3D pointing = {0, 0, 0};
+
 		/** Up vector of the camera. */
-		mrpt::math::TPoint3D up;
+		mrpt::math::TPoint3D up = {0, 0, 0};
+
 		/** In pixels. This may be smaller than the total render window. */
-		size_t viewport_width{640}, viewport_height{480};
+		size_t viewport_width = 640, viewport_height = 480;
 		/** FOV in degrees. */
-		float FOV{30};
+		float FOV = 30.0f;
 		/** Camera elev & azimuth, in radians. */
-		float azimuth{0}, elev{0};
-		float zoom{1};
-		bool is_projective{true};  // true: projective, false: ortho
+		float azimuth = .0f, elev = .0f;
+		float eyeDistance = 1.0f;
+		/** true: projective, false: ortho */
+		bool is_projective = true;
+
+		/** Projection matrix, computed by renderNormalScene() from all the
+		 * parameters above. Used in shaders. */
+		mrpt::math::CMatrixFloat44 p_matrix;
+
+		/** Model-view matrix. Used in shaders.
+		 * The homogeneous coordinates of a rendered point comes from:
+		 *
+		 *  p = p_matrix * mv_matrix * [x y z 1.0]'
+		 *
+		 */
+		mrpt::math::CMatrixFloat44 mv_matrix;
+
+		/** Updates the current p_matrix such that it "looks at" pointing, with
+		 * up vector "up". Replacement for deprecated OpenGL gluLookAt(). */
+		void applyLookAt();
 	};
 	/** Info updated with each "render()" and used in "get3DRayForPixelCoord" */
-	mutable TLastProjectiveMatrixInfo m_lastProjMat;
+	mutable TRenderMatrices m_state;
 
 	/** The list of objects that comprise the 3D scene.
 	 *  Objects are automatically deleted when calling "clear" or in the
